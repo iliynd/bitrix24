@@ -734,6 +734,6 @@ $arUrlRewrite=array (
     'RULE' => '',
     'ID' => 'iliynd:group.disk',
     'PATH' => '/disk-group/index.php',
-    'SORT' => 10,
+    'SORT' => 100,
   ),
 );
