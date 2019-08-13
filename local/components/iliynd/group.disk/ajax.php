@@ -2,6 +2,8 @@
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 use Bitrix\Main\Application;
+use Bitrix\Disk\Ui\FileAttributes;
+use Bitrix\Main\Web\Uri;
 global $USER;
 
 if($USER->IsAuthorized()) {
@@ -10,7 +12,7 @@ if($USER->IsAuthorized()) {
 	$folderid = $request->getPost("id");
 	$storageid = $request->getPost("storage");
 
-	if($id) {
+	if($storageid) {
 
 		\Bitrix\Main\Loader::includeModule('disk');
 
@@ -30,18 +32,21 @@ if($USER->IsAuthorized()) {
 		    	$attr = false;
 		    	$attrib = false;
 		    	if ($item->getType() == 3) {
-		    		$attr = \Bitrix\Disk\Ui\Viewer::getAttributesByObject($item);
 
-		    		// Костыль
-		    		$exp = explode('" ', $attr);
-		    		$at = [];
-		    		foreach($exp as $v) {
-		    			$ex = explode('="', $v);
-		    			$at[$ex[0]] = $ex[1];
+					$attr = FileAttributes::buildByFileId($item->getFileId(), new Uri($urlManager->getUrlForDownloadFile($item)))
+					->setObjectId($item->getId())
+					->setTitle($item->getName())
+					->addAction([
+					'type' => 'download',
+					]);
 
-		    		}
-		    		$attrib['dataviewertype'] = $at['data-bx-viewer'];
-		    		$attrib['datasrc'] = $at['data-bx-src'];
+					$attrib .= ' data-viewer="'.$attr->getAttribute('data-viewer').'"';
+					$attrib .= ' data-viewer-type="'.$attr->getAttribute('data-viewer-type').'"';
+					$attrib .= ' data-src="'.$attr->getAttribute('data-src').'"';
+					$attrib .= ' data-object-id="'.$attr->getAttribute('data-object-id').'"';
+					$attrib .= ' data-title="'.$attr->getAttribute('data-title').'"';
+					$attrib .= ' data-actions="[{&quot;type&quot;:&quot;download&quot;}]"';
+
 				}
 
 		    	$arResult["DIR"][] = [
@@ -50,7 +55,11 @@ if($USER->IsAuthorized()) {
 		    		"TYPE" => $item->getType(),
 		    		"STORAGE" => $storageid,
 		    		"ATTR" => $attrib,
+		    		"PARENT" => $folderid,
+		    		"CANNAME" => str_replace(".", "", $item->getName()),
 		    	];
+
+
 		    }
 		} 
 

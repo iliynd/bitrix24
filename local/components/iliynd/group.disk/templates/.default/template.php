@@ -5,10 +5,6 @@ Extension::load('ui.bootstrap4');
 
 $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 
-
-
-//href="<?=($dir['TYPE'] == 3) ? '/disk-group/show/'.$dir["ID"] : '#'
-
 ?>
 
 <? if ($arResult["DIR"]) :?>
@@ -18,13 +14,34 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 				<a href="#" 
 				class="list-group-item list-group-item-action" 
 				data-folderid="<?=($dir['TYPE'] == 2) ? $dir['ID'] : ''?>" 
-				data-storageid="<?=$dir['STORAGE']?>" <?=($dir['ATTR']) ? 'data-viewer-type="'.$dir['ATTR']['data-viewer-type'].'" data-src="'.$dir['ATTR']['data-src'].'" data-viewer=""' : ''?>>
+				data-storageid="<?=$dir['STORAGE']?>"
+				data-canname="<?=str_replace('.', '',$dir['NAME'])?>"  <?=($dir['ATTR']) ? $dir['ATTR'] : ''?>  >
 				<?=($dir['TYPE'] == 2) ? '<i class="fa fa-folder mr-2"></i>' : '<i class="fa fa-file mr-2"></i>'?><?=$dir['NAME']?>
 				</a>
 			<? endforeach; ?>
 		</div>
 	</div>
-<? endif; ?>
+<? endif; 
 
 
+
+
+if ($arResult["OPENFILE"]) {
+	$i = 0;?>
+		<script type="text/javascript">
+			BX.ready(function(){	
+				<?foreach($arResult["OPENFILE"] as $diropen) { 
+					?>
+		    		setTimeout(function() { var select = document.querySelector('a[data-canname="<?=$diropen?>"]'); BX.fireEvent(select,'click'); }, <?=$i?>);
+				<?
+				$i = $i + 300;
+				}?>
+			});
+		</script>
+<? 
+}
+
+
+
+?>
 
